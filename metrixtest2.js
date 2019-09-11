@@ -1,9 +1,10 @@
 var five = require("johnny-five");
 var board = new five.Board();
+const scrollController = require('five-squared')
 
 board.on("ready", function() {
   // get a reference to scrollcontroller
-const scrollController = require('fivesquared')
+
 
 // make an array of 0-255 pixels
 let arr = []
