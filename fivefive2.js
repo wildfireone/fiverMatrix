@@ -24,6 +24,8 @@ _ENABLE_OFFSET = 0x00
 _BLINK_OFFSET = 0x12
 _COLOR_OFFSET = 0x24
 
+
+
 LED_GAMMA = (
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,
@@ -45,12 +47,14 @@ LED_GAMMA = (
 
 
 
-    width = 5
-    height = 5
-    gamma_table;
-    address =0x74;
-    io;
-    current_frame =0;
+    var width = 5
+    var height = 5
+    var gamma_table;
+    var address =0x74;
+    var io;
+    var current_frame =0;
+    var buff;
+    var brightness;
 
     function init(board) {
         
@@ -145,100 +149,105 @@ LED_GAMMA = (
         //"""
         current_frame = 0
 
-        try:
-            del self.buf
-        except AttributeError:
-            pass
         var Abuffer = Array(width*height).fill([0, 0, 0, 1.0]);
         buff = Abuffer.buffer;
 
         //self.buf = [(0, 0, 0, 1.0) for x in range(self._width * self._height)]
     }
 
-    def set_brightness(self, brightness):
-        """Set a global brightness value.
-        :param brightness: Brightness value from 0.0 to 1.0
-        """
-        self._brightness = brightness
+    function set_brightness(val){
+        //"""Set a global brightness value.
+        //:param brightness: Brightness value from 0.0 to 1.0
+        //"""
+         brightness = val;
+}
 
-    def set_all(self, r, g, b, brightness=1.0):
-        """Set all pixels in the buffer.
-        :param r, g, b: Intensity of the pixel, from 0 to 255.
-        """
-        for x in range(self._width):
-            for y in range(self._height):
-                self.set_pixel(x, y, r, g, b, brightness)
+    function set_all(r, g, b, brightval = 1.0){
+        //"""Set all pixels in the buffer.
+        //:param r, g, b: Intensity of the pixel, from 0 to 255.
+        //"""
+        for(var x =0 ; x<width;x++){
+            for(var y =0 ; y<height;y++){
+                set_pixel(x, y, r, g, b, brightval)
+        }
+    }
 
-    def set_pixel(self, x, y, r, g, b, brightness=1.0):
-        """Set a single pixel in the buffer.
-        :param x: Position of pixel from left
-        :param y: Position fo pixel from top
-        :param r, g, b: Intensity of the pixel, from 0 to 255.
-        """
-        r, g, b = [int(c) for c in (r, g, b)]
+    function set_pixel(self, x, y, r, g, b, brightval=1.0){
+        //"""Set a single pixel in the buffer.
+        //:param x: Position of pixel from left
+        //:param y: Position fo pixel from top
+        //:param r, g, b: Intensity of the pixel, from 0 to 255.
+        //"""
+        //r, g, b = [int(c) for c in (r, g, b)]
 
-        for c in (r, g, b):
-            if c > 255 or c < 0:
-                raise ValueError('Value {} out of range. RGB values should be between 0 and 1'.format(c))
+        if(r<0 || r>255 ||g<0 || g>255 ||b<0 || b>255){
+            throw "Value out of range. RGB values should be between 0 and 1";
+        }
+            
 
-        try:
-            if x % 2 == 1:
+        
+            if( x % 2 == 1){
                 y = 4 - y
-            self.buf[y + (x * 5)] = (r, g, b, brightness)
+            }
+            buff[y + (x * 5)] = (r, g, b, brightval);
 
-        except IndexError:
-            raise ValueError('x position ({}) is out of range!'.format(x))
+    }
 
-    def set_multiple_pixels(self, indexes, from_colour, to_colour=None):
-        """Set multiple pixels to a range of colours sweeping from from_colour to to_colour.
-        :param from_colour: A tuple with 3 values representing the red, green and blue of the first colour
-        :param to_colour: A tuple with 3 values representing the red, green and blue of the second colour
-        """
-        if to_colour is None:
-            to_colour = from_colour
+    // def set_multiple_pixels(self, indexes, from_colour, to_colour=None):
+    //     """Set multiple pixels to a range of colours sweeping from from_colour to to_colour.
+    //     :param from_colour: A tuple with 3 values representing the red, green and blue of the first colour
+    //     :param to_colour: A tuple with 3 values representing the red, green and blue of the second colour
+    //     """
+    //     if to_colour is None:
+    //         to_colour = from_colour
 
-        length = float(len(indexes))
-        step = 0
-        from_r, from_g, from_b = from_colour
-        to_r, to_g, to_b = to_colour
-        step_r, step_g, step_b = to_r - from_r, to_g - from_g, to_b - from_b
-        step_r /= length
-        step_g /= length
-        step_b /= length
+    //     length = float(len(indexes))
+    //     step = 0
+    //     from_r, from_g, from_b = from_colour
+    //     to_r, to_g, to_b = to_colour
+    //     step_r, step_g, step_b = to_r - from_r, to_g - from_g, to_b - from_b
+    //     step_r /= length
+    //     step_g /= length
+    //     step_b /= length
 
-        for index in indexes:
-            if type(index) == int:
-                y = index // 5
-                x = index % 5
-            else:
-                x, y = index
-            self.set_pixel(x, y, from_r + (step_r * step), from_g + (step_g * step), from_b + (step_b * step))
-            step += 1
+    //     for index in indexes:
+    //         if type(index) == int:
+    //             y = index // 5
+    //             x = index % 5
+    //         else:
+    //             x, y = index
+    //         self.set_pixel(x, y, from_r + (step_r * step), from_g + (step_g * step), from_b + (step_b * step))
+    //         step += 1
 
-    def get_shape(self):
-        """Get the size/shape of the display.
-        Returns a tuple containing the width and height of the display,
-        after applying rotation.
-        """
-        return (self._width, self._height)
+    // def get_shape(self):
+    //     """Get the size/shape of the display.
+    //     Returns a tuple containing the width and height of the display,
+    //     after applying rotation.
+    //     """
+    //     return (self._width, self._height)
 
-    def show(self):
-        """Show the buffer contents on the display."""
-        self.setup()
+    function show(){
+        //"""Show the buffer contents on the display."""
+        setup()
+        if(current_frame == 1){
+            next_frame =0;
+        }
+        else{
+            next_frame = 1;
+        }
+        //next_frame = 0 if self._current_frame == 1 else 0
+        output =[];
+        output.fill(0,0,144);
 
-        next_frame = 0 if self._current_frame == 1 else 0
-
-        output = [0 for x in range(144)]
-
-        for x in range(self._width * self._height):
-            r, g, b, br = self.buf[x]
+        for (var x =0; x<(width*height); x++){
+            r, g, b, br = buf[x]
             r, g, b = [self._gamma_table[int(c * self._brightness * br)] for c in (r, g, b)]
 
             ir, ig, ib = self._pixel_addr(x)
             output[ir] = r
             output[ig] = g
             output[ib] = b
-
+        }
         self._bank(next_frame)
 
         offset = 0
@@ -248,7 +257,7 @@ LED_GAMMA = (
             offset += 32
 
         self._frame(next_frame)
-
+    }
     def _reset(self):
         self._sleep(True)
         time.sleep(0.00001)
@@ -291,7 +300,7 @@ LED_GAMMA = (
 
     def _pixel_addr(self, x, y):
         return x + y * 5
-
+    
 
 class RGBMatrix5x5(Matrix):
     """LED SHIM."""
