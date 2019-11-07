@@ -1,6 +1,6 @@
 var five = require("johnny-five");
 var board = new five.Board();
-var fivefive = require("./fivefive2.js");
+var fivefive = require("./fivefive-library.js");
 
 board.on("ready", function() {
 
@@ -13,13 +13,12 @@ board.on("ready", function() {
   ];
 
   fivefive.init(board);
-  fivefive.setup();
   fivefive.set_all(0,255,255);
   fivefive.show();
  
   //fivefive.clear();
 count =0;
-while(count<5){
+while(count<50){
   count++;
    for(var i=0; i<5;i++){
     fivefive.set_pixel(i,0,0,0,255);

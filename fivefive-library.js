@@ -73,6 +73,7 @@ function init(board) {
 
     brightness = 1.0
     console.log("init complete");
+    setup();
 }
 
 function setup() {
